@@ -1,21 +1,29 @@
 import asyncio
+import logging
+
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import RedisStorage
-from bot.config import Config
-from bot.handlers import commands, photos
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+
+from bot.config import config  # предполагаю, что config здесь импортируется
+from bot.handlers import router  # или откуда берутся роутеры/handlers
 
 
-async def main():
-    config = Config()
-    bot = Bot(token=config.bot_token, parse_mode="HTML")
-    storage = RedisStorage.from_url(config.redis_url)
-    dp = Dispatcher(storage=storage)
+async def main() -> None:
+    # Initialize Bot with default properties
+    bot = Bot(
+        token=config.bot_token,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+    )
 
-    dp.include_router(commands.router)
-    dp.include_router(photos.router)
+    dp = Dispatcher()
+    dp.include_router(router)  # или dp.include_routers(...) если несколько
+
+    # ... остальной код (если есть skip_updates, etc.)
 
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
