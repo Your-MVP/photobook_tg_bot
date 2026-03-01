@@ -1,0 +1,10 @@
+# .clineignore
+data/
+__pycache__/
+*.pyc
+*.log
+.git/
+.env
+*.md
+Dockerfile*
+docker-compose*.yml
