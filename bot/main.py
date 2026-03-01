@@ -20,7 +20,7 @@ async def main() -> None:
     Uses HTML parse mode and starts polling.
     """
     bot = Bot(
-        token=config.bot_token,
+        token=config.BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
 
@@ -30,7 +30,7 @@ async def main() -> None:
     # Optional: drop pending updates on start
     await bot.delete_webhook(drop_pending_updates=True)
 
-    logging.info("✅ Photobook Bot started successfully")
+    logging.info("Photobook Bot started successfully")
     await dp.start_polling(bot)
 
 
