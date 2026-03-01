@@ -1,10 +1,11 @@
-"""Handlers package initializer for Photobook Bot MVP v0.1.0.
+from aiogram import Router
 
-Aggregates all routers (commands, photos, etc.) into a single main router.
-"""
+from .commands import router as commands_router
+from .photos import router as photos_router
 
-from .commands import router
+router = Router(name="main_handlers")
 
-# If you have more handlers (e.g. photos.py), add them here:
-# from .photos import router as photos_router
-# router.include_router(photos_router)
+router.include_router(commands_router)
+router.include_router(photos_router)
+
+__all__ = ["router"]
