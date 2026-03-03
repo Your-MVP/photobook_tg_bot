@@ -26,7 +26,7 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
 async def cmd_start(message: Message, state: FSMContext):
     await state.set_state(BookStates.creating)
     await message.answer(
-        "Добро пожаловать! Присылайте фото для фотокниги. /build — собрать PDF, /clear — очистить.",
+        "👋 Привет! Я MagicMemory бот 📸 Я собираю фото в красивые фотоальбомы! Добавь меня в свой семейный чат или отправляй фотографии прямо в этом чате и я буду собирать фото для твоего нового фотоальбома.",
         reply_markup=add_to_family_chat_kb
     )
 
