@@ -28,6 +28,9 @@ class Config(BaseSettings):
     POSTGRES_HOST: str = "postgres"
     POSTGRES_PORT: int = 5432
 
+    # Media assets (static files baked into the Docker image)
+    VIDEO_ADD_TO_CHAT_PATH: str = "/app/bot/assets/videos/add_to_family_chat.mp4"
+
 
 # Global instance (required for imports)
 config = Config()
