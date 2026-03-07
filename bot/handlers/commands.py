@@ -89,9 +89,12 @@ async def cmd_clear(message: Message):
     await message.answer("Список фото очищен.")
 
 
-@router.message(F.chat.type == "private", ~Command(), ~F.photo)
+@router.message(F.chat.type == "private", ~F.photo)
 async def forward_text_to_topic(message: Message):
     """Форвардит текстовые сообщения пользователя в его персональную тему."""
+    if message.text and message.text.startswith("/"):
+        return  # команды обрабатываются отдельными хендлерами
+
     topic_id = await get_user_topic_id(message.from_user.id)
     if topic_id is None or not config.SUPERGROUP_CHAT_ID:
         return
