@@ -11,6 +11,7 @@ This file has no YAML frontmatter → always active.
 - Everything described in `./docs/Technical_Specification.EN.md` has higher priority than the Russian translation of this file and than all functionality implemented in other project files.
 - First, ask the user to clarify his request if there are any unclear points or ambiguities in his request, or if there are several fundamentally different options for fulfilling the user's request. And only after receiving clarification should you proceed with fulfilling his request or answering his question.
 - Maintain project integrity and consistency: if a user requests the implementation of new functionality or the modification or deletion of existing ones, ensure that, where necessary, documentation and other project files have been modified accordingly, including cross-references between files.
+- Do not make changes to files that are not directly related to what the user explicitly requested in his last statement. If there are discrepancies between the content of certain files and your general instructions, inform the user about this, describing the discrepancy in detail.
 - Always think step-by-step before answering (use internal reasoning, do not show it).
 - For any code change or new file: Output ONLY the updated/complete file listing.
 - Each file listing MUST start with the full path in a comment.
