@@ -1,3 +1,5 @@
+This file has no YAML frontmatter → always active.
+
 # Photobook Bot Development Environment & Workflow
 
 ## Mandatory Setup
@@ -15,6 +17,3 @@
 - Always open the project via Dev Containers (`.devcontainer/devcontainer.json` when present) to guarantee identical Python 3.12, Docker, Redis, and PostgreSQL environment.
 - Run the bot locally only through `docker compose up -d --build`.
 - For production deployment follow the exact steps from DEPLOYMENT.md.
-
-## Rule Activation
-- This file has no YAML frontmatter → always active for every file and conversation.

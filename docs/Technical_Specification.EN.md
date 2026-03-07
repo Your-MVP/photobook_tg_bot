@@ -5,8 +5,7 @@ Develop a Telegram bot that allows users to collect photos from private chat wit
 
 **2. Core Functional Requirements**
 - Photo reception: the bot receives photos both in private chat and in group chats (family albums) where it was added.
-- Photobook management: /build command (simple one-photo-per-page PDF), /clear, view and manage user’s book list.
-- Data storage: PostgreSQL (SQLAlchemy async) — users, sessions, photo lists, generated books.
+- Data storage: PostgreSQL (SQLAlchemy async) — users, sessions, photo id lists, generated book ids.
 - Monitoring via supergroup: for each active user the bot automatically creates a separate forum topic in a pre-prepared supergroup. Only administrators (owners and assigned moderators) are present in the supergroup; end users are not added.
 
 **3. Supergroup and Topics Handling (Telegram Bot API)**
@@ -35,10 +34,23 @@ Develop a Telegram bot that allows users to collect photos from private chat wit
 - Everything related to supergroup creation and initial administrator assignment can only be done manually. Only topic creation and work inside topics is automated.
 
 **6. Additional Requirements**
-- Future stages (not in MVP v0.1.0): integration of neural network for photo quality selection and collage creation.
 - Full containerization: Docker Compose (bot + Redis + PostgreSQL).
-- Ready for deployment on Oracle Cloud Always Free Tier (Arm Ampere A1).
 
-**7. Code Requirements**
-- aiogram 3.x, Redis FSM storage, async SQLAlchemy.
-- PEP 8, type hints, Google-style docstrings.
+**7. Technology Stack**
+- Python 3.12,
+- aiogram 3.x,
+- asyncio,
+- Redis FSM storage,
+- Pillow/OpenCV for image handling,
+- img2pdf/ReportLab for PDF generation,
+- Docker Compose,
+- PostgreSQL (SQLAlchemy async).
+
+**8. Coding Standards**
+- Strictly follow PEP 8.
+- Use type hints on every function, method, and variable where possible.
+- Docstrings: Google style (or NumPy style) consistently.
+- For image/PDF handling prefer Pillow → img2pdf; keep OpenCV only when strictly necessary.
+- Use SQLAlchemy 2.0 async style everywhere.
+- Redis FSM storage via aiogram 3.x.
+- Keep all new code inside the existing `bot/` package structure; never alter top-level files unless explicitly requested.

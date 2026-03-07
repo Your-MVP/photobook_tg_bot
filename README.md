@@ -7,4 +7,4 @@ Simple Telegram bot to create PDF photobooks.
 2. docker compose up -d --build
 3. Send /start to your bot.
 
-See DEPLOY_ORACLE.md for cloud deployment.
+See DEPLOYMENT.md for deployment.
