@@ -1,4 +1,4 @@
-**Technical Specification for Telegram Bot Development “Photobook Bot” (MVP v0.1.0)**
+**Technical Specification for Telegram Bot Development “Photobook Bot”**
 
 **1. Project Goal**
 Develop a Telegram bot that allows users to collect photos from private chat with the bot or from a family group chat (where the user manually adds the bot), create photobooks in PDF format and prepare them for printing. The bot must support photobook list management per user, store data in a database and provide monitoring for administrators via a dedicated supergroup.
@@ -41,5 +41,4 @@ Develop a Telegram bot that allows users to collect photos from private chat wit
 
 **7. Code Requirements**
 - aiogram 3.x, Redis FSM storage, async SQLAlchemy.
-- All interface strings — English only (per project internal standard).
 - PEP 8, type hints, Google-style docstrings.
