@@ -1,6 +1,6 @@
 # ./docs/Technical_Specification.EN.md
 
-# Technical Specification for Photobook Telegram Bot Development (MVP v0.1.0)
+# Technical Specification for Photobook Telegram Bot Development
 
 ## 1. Project Goal
 Develop a Telegram bot that allows users to collect photos from a private chat with the bot or from a family group chat (where the user adds the bot manually). The bot should support the storage of the minimum necessary data in the database (the photos themselves should be stored in Telegram, and only the photo IDs should be stored in the bot's database) and monitoring by administrators through a dedicated supergroup called the moderation supergroup.
