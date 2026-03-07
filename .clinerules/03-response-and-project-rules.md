@@ -3,11 +3,12 @@ This file has no YAML frontmatter → always active.
 # Project & Response Rules
 
 ## Project Context and Constraints
-- Detailed functionality and a list of features are described at `./docs/Technical_Specification.EN.md`.
+- Detailed functionality and a list of features that must be implemented are described at `./docs/Technical_Specification.EN.md`.
 - Future roadmap items (DO NOT implement yet) are described at `./ROADMAP.md`.
 
 ## Response Rules (STRICT)
 - Make sure you are aware of all the project files.
+- Everything described in `./docs/Technical_Specification.EN.md` has higher priority than the Russian translation of this file and than all functionality implemented in other project files.
 - First, ask the user to clarify his request if there are any unclear points or ambiguities in his request, or if there are several fundamentally different options for fulfilling the user's request. And only after receiving clarification should you proceed with fulfilling his request or answering his question.
 - Maintain project integrity and consistency: if a user requests the implementation of new functionality or the modification or deletion of existing ones, ensure that, where necessary, documentation and other project files have been modified accordingly, including cross-references between files.
 - Always think step-by-step before answering (use internal reasoning, do not show it).
