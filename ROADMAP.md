@@ -1,6 +1,6 @@
 # Roadmap
 
-## Next (v0.2)
+## Next
 - PostgreSQL models for books/users
 - AI photo selection (CLIP)
 - Collages with Pillow
