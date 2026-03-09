@@ -5,8 +5,8 @@ Includes /start with automatic forum topic creation and forwarding of user messa
 """
 
 from aiogram import Router, F
-from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile
+from aiogram.filters import JOIN_TRANSITION, ChatMemberUpdatedFilter, Command
+from aiogram.types import CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
 from bot.states import BookStates
@@ -21,6 +21,17 @@ from bot.config import config
 
 router = Router()
 
+# Inline keyboard with the required button (appears in /start message)
+add_to_family_chat_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Добавить бота в семейный чат",
+                callback_data="add_to_family_chat"
+            )
+        ]
+    ]
+)
 
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
@@ -61,9 +72,8 @@ async def cmd_start(message: Message, state: FSMContext):
             print(f"[WARNING] Не удалось создать тему для {message.from_user.id}: {e}")
 
     await message.answer(
-        "Добро пожаловать в Photobook Bot!\n\n"
-        "Присылайте фото для фотокниги. "
-        "После загрузки используйте /build для создания PDF или /clear для очистки."
+        "👋 Привет! Я MagicMemory бот 📸 Я собираю фото в красивые фотоальбомы! Добавь меня в свой семейный чат или отправляй фотографии прямо в этом чате и я буду собирать фото для твоего нового фотоальбома.",
+        reply_markup=add_to_family_chat_kb
     )
 
 
@@ -89,6 +99,36 @@ async def cmd_clear(message: Message):
     await message.answer("Список фото очищен.")
 
 
+@router.my_chat_member(
+    ChatMemberUpdatedFilter(
+        member_status_changed=JOIN_TRANSITION
+    )
+)
+async def on_bot_added(event: ChatMemberUpdated):
+    """Обработчик добавления бота в группу"""
+    chat = event.chat
+    chat_id = chat.id
+    chat_title = chat.title or "Без названия"
+    chat_username = chat.username or "отсутствует"
+    chat_type = chat.type
+
+    # Сообщение для группы
+    group_message = (
+        f"👋 Привет! Я бот.\n"
+        f"📋 ID этой группы: <code>{chat_id}</code>\n\n"
+        f"• Название: {chat_title}\n"
+        f"• Username: @{chat_username}\n"
+        f"• Тип: {chat.type}\n"
+        f"• Время: {event.date}"
+    )
+
+    await event.bot.send_message(
+        chat_id=chat_id,
+        text=group_message,
+        parse_mode="HTML"
+    )
+
+
 @router.message(F.chat.type == "private", ~F.photo)
 async def forward_text_to_topic(message: Message):
     """Форвардит текстовые сообщения пользователя в его персональную тему."""
@@ -105,3 +145,25 @@ async def forward_text_to_topic(message: Message):
         )
     except Exception as e:
         print(f"[FORWARD ERROR] User {message.from_user.id}: {e}")
+
+
+@router.callback_query(F.data == "add_to_family_chat")
+async def process_add_to_family_chat(callback: CallbackQuery):
+    """Handle callback from the 'Add bot to family chat' button.
+
+    Sends the instructional video with explanatory text in Russian.
+    """
+    await callback.answer()
+    video = FSInputFile(config.VIDEO_ADD_TO_CHAT_PATH)
+    caption = (
+        "Чтобы добавить бота в семейный чат:\n"
+        "1. Откройте семейный чат в Telegram.\n"
+        "2. Нажмите на имя чата → «Добавить участников».\n"
+        "3. Найдите бота и добавьте его.\n"
+        "4. Разрешите доступ к сообщениям и фото.\n\n"
+        "Теперь вся семья может присылать фотографии боту для общей фотокниги!"
+    )
+    await callback.message.answer_video(
+        video=video,
+        caption=caption
+    )
