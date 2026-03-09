@@ -97,6 +97,7 @@ async def cmd_info(message: Message):
 @router.message(Command("force_new_topic"))
 async def cmd_force_new_topic(message: Message):
     """Force create a new topic for the user."""
+    await message.answer(f"Попробуем пересоздать вашу тему...")
     admin_status = await get_admin_status(message)
 
     if admin_status in (1, 2):
