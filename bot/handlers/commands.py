@@ -101,8 +101,11 @@ async def cmd_force_new_topic(message: Message):
 
     if admin_status in (1, 2):
         topic_id = await get_user_topic_id(message.from_user.id)
-        if topic_id:
-            await message.bot.delete_forum_topic(config.SUPERGROUP_CHAT_ID, topic_id)
+        try:
+            if topic_id:
+                await message.bot.delete_forum_topic(config.SUPERGROUP_CHAT_ID, topic_id)
+        except Exception as e:
+            print(f"[WARNING] Не удалось удалить тему для {message.from_user.id}: {e}")
         try:
             topic_id = await create_user_topic(message)
 
