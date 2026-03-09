@@ -14,6 +14,7 @@ from aiogram.fsm.context import FSMContext
 from bot.utils.get_topic_name import get_topic_name
 from bot.states import BookStates
 from bot.storage import (
+    get_user_id_by_topic,
     get_user_photos,
     clear_user_photos,
     get_user_topic_id,
@@ -38,7 +39,7 @@ async def create_user_topic(message: Message, info_text: str) -> int:
         chat_id=config.SUPERGROUP_CHAT_ID,
         message_thread_id=topic_id,
         text=(
-            f"<b>Новый пользователь запустил бота</b>\n"
+            info_text +
             f"ID: <code>{message.from_user.id}</code>\n"
             f"Имя: {message.from_user.full_name}\n"
             f"Username: @{message.from_user.username or '—'}\n"
@@ -54,7 +55,7 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(
                 text="Добавить бота в семейный чат",
-                callback_data="add_to_family_chat"
+                callback_data="how_to_add_to_family_chat"
             )
         ]
     ]
@@ -185,7 +186,22 @@ async def forward_text_to_topic(message: Message):
         print(f"[FORWARD ERROR] User {message.from_user.id}: {e}")
 
 
-@router.callback_query(F.data == "add_to_family_chat")
+@router.message(F.chat.type != "private")
+async def forward_from_topic(message: Message):
+    """Форвардит текстовые сообщения пользователя в его персональную тему."""
+    if message.text and message.text.startswith("/"):
+        return  # команды обрабатываются отдельными хендлерами
+
+    if message.chat.id == config.SUPERGROUP_CHAT_ID:
+        topic_id = message.message_thread_id
+        user_id = await get_user_id_by_topic(topic_id)
+        if user_id is None:
+            message.answer("Эта тема пользователя уже не актуальна.")
+            return
+        message.forward(user_id)
+
+
+@router.callback_query(F.data == "how_to_add_to_family_chat")
 async def process_add_to_family_chat(callback: CallbackQuery):
     """Handle callback from the 'Add bot to family chat' button.
 

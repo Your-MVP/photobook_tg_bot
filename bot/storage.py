@@ -33,16 +33,25 @@ async def clear_user_photos(user_id: int) -> None:
     await redis.delete(f"user:{user_id}:photos")
 
 
-# === Ассоциация пользователя ↔ форум-тема ===
+# === Association: User ↔ Forum Topic ===
+
+async def set_user_topic_id(user_id: int, topic_id: int) -> None:
+    """Save association between user_id and forum topic_id in Redis with expiration."""
+    user_key = f"user:{user_id}:topic_id"
+    await redis.set(user_key, str(topic_id), ex=30 * 24 * 60 * 60)
+    topic_key = f"topic:{topic_id}:user_id"
+    await redis.set(topic_key, str(user_id), ex=30 * 24 * 60 * 60)
+
 
 async def get_user_topic_id(user_id: int) -> Optional[int]:
-    """Получить message_thread_id темы пользователя (если создана)."""
+    """Get the message_thread_id of the user's forum topic (if created)."""
     key = f"user:{user_id}:topic_id"
     topic_id_bytes = await redis.get(key)
     return int(topic_id_bytes) if topic_id_bytes else None
 
 
-async def set_user_topic_id(user_id: int, topic_id: int) -> None:
-    """Сохранить message_thread_id темы (TTL 30 дней)."""
-    key = f"user:{user_id}:topic_id"
-    await redis.set(key, str(topic_id), ex=30 * 24 * 60 * 60)
+async def get_user_id_by_topic(topic_id: int) -> Optional[int]:
+    """Get user_id associated with a given forum topic_id."""
+    topic_key = f"topic:{topic_id}:user_id"
+    user_id_bytes = await redis.get(topic_key)
+    return int(user_id_bytes) if user_id_bytes else None

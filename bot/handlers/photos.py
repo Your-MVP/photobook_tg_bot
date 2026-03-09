@@ -31,4 +31,4 @@ async def handle_photo(message: Message):
         except Exception as e:
             print(f"[FORWARD ERROR] User {user_id}: {e}")
 
-    await message.answer("Фото добавлено в ваш альбом! Отправьте ещё фотографии или используйте /build для создания PDF-фотокниги.")
+    await message.answer("Фото добавлено в ваш альбом! 📸")
