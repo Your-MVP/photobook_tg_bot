@@ -4,12 +4,14 @@
 Includes /start with automatic forum topic creation and forwarding of user messages to their topic.
 """
 
+
 from aiogram import Router, F
 from aiogram.enums import ChatMemberStatus
 from aiogram.filters import JOIN_TRANSITION, ChatMemberUpdatedFilter, Command
 from aiogram.types import CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
+from bot.utils.get_topic_name import get_topic_name
 from bot.states import BookStates
 from bot.storage import (
     get_user_photos,
@@ -17,10 +19,21 @@ from bot.storage import (
     get_user_topic_id,
     set_user_topic_id,
 )
+from bot.utils.get_admin_status import get_admin_status
 from bot.utils.pdf_generator import generate_pdf
 from bot.config import config
 
 router = Router()
+
+async def create_user_topic(message):
+    """Create a forum topic for the user in the supergroup and store the topic_id."""
+    forum_topic = await message.bot.create_forum_topic(
+                chat_id=config.SUPERGROUP_CHAT_ID,
+                name=get_topic_name(message)[:128],
+            )
+    topic_id = forum_topic.message_thread_id
+    await set_user_topic_id(message.from_user.id, topic_id)
+    return topic_id
 
 # Inline keyboard with the required button (appears in /start message)
 add_to_family_chat_kb = InlineKeyboardMarkup(
@@ -46,17 +59,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
     if topic_id is None and config.SUPERGROUP_CHAT_ID:
         try:
-            full_name = message.from_user.full_name
-            username_part = f" (@{message.from_user.username})" if message.from_user.username else ""
-            topic_name = f"👤 Пользователь {message.from_user.id}{username_part} — {full_name}"
-
-            forum_topic = await message.bot.create_forum_topic(
-                chat_id=config.SUPERGROUP_CHAT_ID,
-                name=topic_name[:128],
-                icon_color=0x2E7D32,
-            )
-            topic_id = forum_topic.message_thread_id
-            await set_user_topic_id(message.from_user.id, topic_id)
+            topic_id = await create_user_topic(message)
 
             await message.bot.send_message(
                 chat_id=config.SUPERGROUP_CHAT_ID,
@@ -64,8 +67,9 @@ async def cmd_start(message: Message, state: FSMContext):
                 text=(
                     f"<b>Новый пользователь запустил бота</b>\n"
                     f"ID: <code>{message.from_user.id}</code>\n"
-                    f"Имя: {full_name}\n"
+                    f"Имя: {message.from_user.full_name}\n"
                     f"Username: @{message.from_user.username or '—'}"
+                    f"ID темы: <code>{topic_id}</code>"
                 ),
                 parse_mode="HTML",
             )
@@ -77,33 +81,45 @@ async def cmd_start(message: Message, state: FSMContext):
         reply_markup=add_to_family_chat_kb
     )
 
-
 @router.message(Command("info"))
 async def cmd_info(message: Message):
     """Display helpful information."""
-    if config.SUPERGROUP_CHAT_ID:
-        admins = await message.bot.get_chat_administrators(config.SUPERGROUP_CHAT_ID)
-        # owner = None
+    admin_status = await get_admin_status(message)
 
-        for admin in admins:
-            if message.from_user.id == admin.user.id:
-                reply_text = "Вы являетесь администратором супергруппы."
-                full_name = message.from_user.full_name
-                username_part = f" (@{message.from_user.username})" if message.from_user.username else ""
-                topic_name = f"👤 Пользователь {message.from_user.id}{username_part} — {full_name}"
+    if admin_status in (1, 2):
+        reply_text = "Вы являетесь администратором супергруппы."
 
-                if admin.status == ChatMemberStatus.CREATOR:
-                    reply_text = reply_text + " Вы также являетесь владельцем супергруппы."
-                    # owner = admin
-                await message.answer(f"{topic_name}\n{reply_text}")
-                return
+        if admin_status == 2:
+            reply_text = reply_text + "\nВы также являетесь владельцем супергруппы."
+        await message.answer(f"{get_topic_name(message)}\n{reply_text}")
 
-        await message.answer("Вы не являетесь администратором.")
-        return
 
-    await message.answer(
-        "Не задано супергруппы для хранения тем. Пожалуйста, обратитесь к администратору бота."
-    )
+@router.message(Command("force_new_topic"))
+async def cmd_force_new_topic(message: Message):
+    """Force create a new topic for the user."""
+    admin_status = await get_admin_status(message)
+
+    if admin_status in (1, 2):
+        topic_id = await get_user_topic_id(message.from_user.id)
+        if topic_id:
+            await message.bot.delete_forum_topic(config.SUPERGROUP_CHAT_ID, topic_id)
+        try:
+            topic_id = await create_user_topic(message)
+
+            await message.bot.send_message(
+                chat_id=config.SUPERGROUP_CHAT_ID,
+                message_thread_id=topic_id,
+                text=(
+                    f"<b>Пересоздание темы для пользователя</b>\n"
+                    f"ID пользователя: <code>{message.from_user.id}</code>\n"
+                    f"Имя пользователя: {message.from_user.full_name}\n"
+                    f"Username: @{message.from_user.username or '—'}"
+                    f"ID темы: <code>{topic_id}</code>"
+                ),
+                parse_mode="HTML",
+            )
+        except Exception as e:
+            print(f"[WARNING] Не удалось создать тему для {message.from_user.id}: {e}")
 
 
 @router.message(Command("build"))
