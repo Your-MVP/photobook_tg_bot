@@ -188,17 +188,21 @@ async def forward_text_to_topic(message: Message):
 
 @router.message(F.chat.type != "private")
 async def forward_from_topic(message: Message):
-    """Форвардит текстовые сообщения пользователя в его персональную тему."""
-    if message.text and message.text.startswith("/"):
-        return  # команды обрабатываются отдельными хендлерами
+    """Forward messages from the forum topic back to the user (if still valid)."""
+    await message.answer("Сообщение получено в группе, обрабатываем...")
+    if message.from_user.id == message.bot.id:
+        return  # ignore bot's own messages
 
-    if message.chat.id == config.SUPERGROUP_CHAT_ID:
+    if message.text and message.text.startswith("/"):
+        return  # commands in group are not forwarded
+
+    if message.chat.id == config.SUPERGROUP_CHAT_ID and message.is_topic_message:
         topic_id = message.message_thread_id
         user_id = await get_user_id_by_topic(topic_id)
         if user_id is None:
-            message.answer("Эта тема пользователя уже не актуальна.")
+            await message.answer("Эта тема пользователя уже не актуальна.")
             return
-        message.forward(user_id)
+        await message.forward(user_id)
 
 
 @router.callback_query(F.data == "how_to_add_to_family_chat")
