@@ -106,8 +106,11 @@ async def cmd_force_new_topic(message: Message):
         topic_id = await get_user_topic_id(message.from_user.id)
         try:
             if topic_id:
+                await message.answer("Старая тема найдена...")
                 await message.bot.delete_forum_topic(config.SUPERGROUP_CHAT_ID, topic_id)
+                await message.answer("Старая тема успешно удалена...")
         except Exception as e:
+            await message.answer("что-то пошло не так при удалении старой темы...")
             print(f"[WARNING] Не удалось удалить тему для {message.from_user.id}: {e}")
         await message.answer("Старая тема удалена (если она существовала). Создаём новую...")
         try:
@@ -127,6 +130,7 @@ async def cmd_force_new_topic(message: Message):
                 parse_mode="HTML",
             )
         except Exception as e:
+            await message.answer("что-то пошло не так при создании новой темы...")
             print(f"[WARNING] Не удалось создать тему для {message.from_user.id}: {e}")
 
 
