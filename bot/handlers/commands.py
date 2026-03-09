@@ -25,7 +25,7 @@ from bot.config import config
 
 router = Router()
 
-async def create_user_topic(message):
+async def create_user_topic(message: Message, info_text: str) -> int:
     """Create a forum topic for the user in the supergroup and store the topic_id."""
     forum_topic = await message.bot.create_forum_topic(
                 chat_id=config.SUPERGROUP_CHAT_ID,
@@ -33,6 +33,19 @@ async def create_user_topic(message):
             )
     topic_id = forum_topic.message_thread_id
     await set_user_topic_id(message.from_user.id, topic_id)
+
+    await message.bot.send_message(
+        chat_id=config.SUPERGROUP_CHAT_ID,
+        message_thread_id=topic_id,
+        text=(
+            f"<b>Новый пользователь запустил бота</b>\n"
+            f"ID: <code>{message.from_user.id}</code>\n"
+            f"Имя: {message.from_user.full_name}\n"
+            f"Username: @{message.from_user.username or '—'}\n"
+            f"ID темы: <code>{topic_id}</code>"
+        ),
+        parse_mode="HTML",
+    )
     return topic_id
 
 # Inline keyboard with the required button (appears in /start message)
@@ -49,30 +62,15 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
 
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
-    """Handle /start: create personal forum topic in supergroup if not exists.
-
-    Надёжная ассоциация: thread_id хранится в Redis по ключу user:{id}:topic_id.
-    """
+    """Handle /start: create personal forum topic in supergroup if not exists."""
     await state.set_state(BookStates.creating)
 
     topic_id = await get_user_topic_id(message.from_user.id)
 
     if topic_id is None and config.SUPERGROUP_CHAT_ID:
         try:
-            topic_id = await create_user_topic(message)
+            topic_id = await create_user_topic(message, "<b>Новый пользователь запустил бота</b>\n")
 
-            await message.bot.send_message(
-                chat_id=config.SUPERGROUP_CHAT_ID,
-                message_thread_id=topic_id,
-                text=(
-                    f"<b>Новый пользователь запустил бота</b>\n"
-                    f"ID: <code>{message.from_user.id}</code>\n"
-                    f"Имя: {message.from_user.full_name}\n"
-                    f"Username: @{message.from_user.username or '—'}"
-                    f"ID темы: <code>{topic_id}</code>"
-                ),
-                parse_mode="HTML",
-            )
         except Exception as e:
             print(f"[WARNING] Не удалось создать тему для {message.from_user.id}: {e}")
 
@@ -97,40 +95,18 @@ async def cmd_info(message: Message):
 @router.message(Command("force_new_topic"))
 async def cmd_force_new_topic(message: Message):
     """Force create a new topic for the user."""
-    await message.answer(f"Попробуем пересоздать вашу тему...")
     admin_status = await get_admin_status(message)
-    await message.answer(f"Статус администратора: {admin_status}")
 
     if admin_status in (1, 2):
-        await message.answer("Вы являетесь администратором супергруппы. Попробуем пересоздать вашу тему...")
         topic_id = await get_user_topic_id(message.from_user.id)
         try:
             if topic_id:
-                await message.answer("Старая тема найдена...")
                 await message.bot.delete_forum_topic(config.SUPERGROUP_CHAT_ID, topic_id)
-                await message.answer("Старая тема успешно удалена...")
         except Exception as e:
-            await message.answer("что-то пошло не так при удалении старой темы...")
             print(f"[WARNING] Не удалось удалить тему для {message.from_user.id}: {e}")
-        await message.answer("Старая тема удалена (если она существовала). Создаём новую...")
         try:
-            topic_id = await create_user_topic(message)
-            await message.answer("Новая тема создана!")
-
-            await message.bot.send_message(
-                chat_id=config.SUPERGROUP_CHAT_ID,
-                message_thread_id=topic_id,
-                text=(
-                    f"<b>Пересоздание темы для пользователя</b>\n"
-                    f"ID пользователя: <code>{message.from_user.id}</code>\n"
-                    f"Имя пользователя: {message.from_user.full_name}\n"
-                    f"Username: @{message.from_user.username or '—'}"
-                    f"ID темы: <code>{topic_id}</code>"
-                ),
-                parse_mode="HTML",
-            )
+            topic_id = await create_user_topic(message, "<b>Пересоздание темы для пользователя</b>\n")
         except Exception as e:
-            await message.answer("что-то пошло не так при создании новой темы...")
             print(f"[WARNING] Не удалось создать тему для {message.from_user.id}: {e}")
 
 
