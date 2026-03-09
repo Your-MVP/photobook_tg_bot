@@ -5,6 +5,7 @@ Includes /start with automatic forum topic creation and forwarding of user messa
 """
 
 from aiogram import Router, F
+from aiogram.enums import ChatMemberStatus
 from aiogram.filters import JOIN_TRANSITION, ChatMemberUpdatedFilter, Command
 from aiogram.types import CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
@@ -77,6 +78,34 @@ async def cmd_start(message: Message, state: FSMContext):
     )
 
 
+@router.message(Command("info"))
+async def cmd_info(message: Message):
+    """Display helpful information."""
+    if config.SUPERGROUP_CHAT_ID:
+        admins = await message.bot.get_chat_administrators(config.SUPERGROUP_CHAT_ID)
+        # owner = None
+
+        for admin in admins:
+            if message.from_user.id == admin.user.id:
+                reply_text = "Вы являетесь администратором супергруппы."
+                full_name = message.from_user.full_name
+                username_part = f" (@{message.from_user.username})" if message.from_user.username else ""
+                topic_name = f"👤 Пользователь {message.from_user.id}{username_part} — {full_name}"
+
+                if admin.status == ChatMemberStatus.CREATOR:
+                    reply_text = reply_text + " Вы также являетесь владельцем супергруппы."
+                    # owner = admin
+                await message.answer(f"{topic_name}\n{reply_text}")
+                return
+
+        await message.answer("Вы не являетесь администратором.")
+        return
+
+    await message.answer(
+        "Не задано супергруппы для хранения тем. Пожалуйста, обратитесь к администратору бота."
+    )
+
+
 @router.message(Command("build"))
 async def cmd_build(message: Message):
     """Build PDF from user's photos (on-the-fly from Telegram file_ids)."""
@@ -110,7 +139,6 @@ async def on_bot_added(event: ChatMemberUpdated):
     chat_id = chat.id
     chat_title = chat.title or "Без названия"
     chat_username = chat.username or "отсутствует"
-    chat_type = chat.type
 
     # Сообщение для группы
     group_message = (
