@@ -91,6 +91,12 @@ async def cmd_info(message: Message):
             reply_text = reply_text + "\nВы также являетесь владельцем супергруппы."
         await message.answer(f"{get_topic_name(message)}\n{reply_text}")
 
+    topic_id = await get_user_topic_id(message.from_user.id)
+    if topic_id:
+        await message.answer(f"У вас уже есть тема в супергруппе с ID: {topic_id}")
+    else:
+        await message.answer("У вас пока нет темы в супергруппе.")
+
 
 @router.message(Command("force_new_topic"))
 async def cmd_force_new_topic(message: Message):

@@ -16,7 +16,6 @@ router = Router()
 @router.message(F.photo)
 async def handle_photo(message: Message):
     """Обрабатывает фото: сохраняет file_id и форвардит в персональную тему."""
-    await message.answer("Фото получено! Добавляем в ваш альбом... 📸")
     user_id = message.from_user.id
     file_id = message.photo[-1].file_id
     await add_photo_to_user(user_id, file_id)
