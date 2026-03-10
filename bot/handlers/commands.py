@@ -202,7 +202,7 @@ async def forward_from_topic(message: Message):
         if user_id is None:
             await message.answer("Эта тема пользователя уже не актуальна.")
             return
-        await message.forward(user_id)
+        await message.copy_to(user_id)
 
 
 @router.callback_query(F.data == "how_to_add_to_family_chat")
