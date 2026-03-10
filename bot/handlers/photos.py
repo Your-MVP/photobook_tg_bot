@@ -16,9 +16,12 @@ router = Router()
 @router.message(F.photo)
 async def handle_photo(message: Message):
     """Обрабатывает фото: сохраняет file_id и форвардит в персональную тему."""
+    await message.answer("Вижу фото. Обрабатываю... 📸")
+
     user_id = message.from_user.id
     file_id = message.photo[-1].file_id
     await add_photo_to_user(user_id, file_id)
+    await message.answer("Фото добавлено в ваш альбом! 📸")
 
     # Форвардинг в тему супергруппы
     topic_id = await get_user_topic_id(user_id)
@@ -28,7 +31,8 @@ async def handle_photo(message: Message):
                 chat_id=config.SUPERGROUP_CHAT_ID,
                 message_thread_id=topic_id,
             )
+            await message.answer("Фото добавлено для модерации! 📸")
         except Exception as e:
             print(f"[FORWARD ERROR] User {user_id}: {e}")
 
-    await message.answer("Фото добавлено в ваш альбом! 📸")
+    await message.answer("Фото обработано! 📸")
