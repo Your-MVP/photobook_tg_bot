@@ -43,6 +43,7 @@ async def handle_photo(message: Message):
 async def debug_all(message: Message):
     # logging.info("Photobook Bot started successfully")
     logging.info(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
+    print("Test debug")
     if message.from_user.id == message.bot.id:
         return  # ignore bot's own messages
     await message.answer("Бот видит это сообщение!")
