@@ -56,7 +56,7 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text="Добавить бота в семейный чат",
+                text="Как добавить бота в семейный чат",
                 callback_data="how_to_add_to_family_chat"
             )
         ]
