@@ -64,6 +64,7 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     """Handle /start: create personal forum topic in supergroup if not exists."""
+    print(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
     await state.set_state(BookStates.creating)
 
     topic_id = await get_user_topic_id(message.from_user.id)
