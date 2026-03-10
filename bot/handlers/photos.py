@@ -36,3 +36,10 @@ async def handle_photo(message: Message):
             print(f"[FORWARD ERROR] User {user_id}: {e}")
 
     await message.answer("Фото обработано! 📸")
+
+@router.message(F.chat.id == -1003727275411)
+async def debug_all(message: Message):
+    print(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
+    if message.from_user.id == message.bot.id:
+        return  # ignore bot's own messages
+    await message.answer("Бот видит это сообщение!") 
