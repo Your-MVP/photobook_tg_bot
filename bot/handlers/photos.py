@@ -35,7 +35,7 @@ async def handle_photo(message: Message):
             )
             await message.answer("Фото добавлено для модерации! 📸")
         except Exception as e:
-            print(f"[FORWARD ERROR] User {user_id}: {e}")
+            logging.error(f"[FORWARD ERROR] User {user_id}: {e}")
 
     await message.answer("Фото обработано! 📸")
 
@@ -43,7 +43,6 @@ async def handle_photo(message: Message):
 async def debug_all(message: Message):
     # logging.info("Photobook Bot started successfully")
     logging.info(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
-    print("Test debug")
     if message.from_user.id == message.bot.id:
         return  # ignore bot's own messages
     await message.answer("Бот видит это сообщение!")

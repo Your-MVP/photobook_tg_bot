@@ -5,6 +5,8 @@ Includes /start with automatic forum topic creation and forwarding of user messa
 """
 
 
+import logging
+
 from aiogram import Router, F
 from aiogram.enums import ChatMemberStatus
 from aiogram.filters import JOIN_TRANSITION, ChatMemberUpdatedFilter, Command
@@ -64,7 +66,7 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     """Handle /start: create personal forum topic in supergroup if not exists."""
-    print(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
+    logging.info(f"Start command: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
     await state.set_state(BookStates.creating)
 
     topic_id = await get_user_topic_id(message.from_user.id)
@@ -74,7 +76,7 @@ async def cmd_start(message: Message, state: FSMContext):
             topic_id = await create_user_topic(message, "<b>Новый пользователь запустил бота</b>\n")
 
         except Exception as e:
-            print(f"[WARNING] Не удалось создать тему для {message.from_user.id}: {e}")
+            logging.warning(f"Не удалось создать тему для {message.from_user.id}: {e}")
 
     await message.answer(
         "👋 Привет! Я MagicMemory бот 📸 Я собираю фото в красивые фотоальбомы! Добавь меня в свой семейный чат или отправляй фотографии прямо в этом чате и я буду собирать фото для твоего нового фотоальбома.",
@@ -111,11 +113,11 @@ async def cmd_force_new_topic(message: Message):
             if topic_id:
                 await message.bot.delete_forum_topic(config.SUPERGROUP_CHAT_ID, topic_id)
         except Exception as e:
-            print(f"[WARNING] Не удалось удалить тему для {message.from_user.id}: {e}")
+            logging.warning(f"Не удалось удалить тему для {message.from_user.id}: {e}")
         try:
             topic_id = await create_user_topic(message, "<b>Пересоздание темы для пользователя</b>\n")
         except Exception as e:
-            print(f"[WARNING] Не удалось создать тему для {message.from_user.id}: {e}")
+            logging.warning(f"Не удалось создать тему для {message.from_user.id}: {e}")
 
 
 @router.message(Command("build"))
@@ -184,10 +186,10 @@ async def forward_text_to_topic(message: Message):
             message_thread_id=topic_id,
         )
     except Exception as e:
-        print(f"[FORWARD ERROR] User {message.from_user.id}: {e}")
+        logging.error(f"[FORWARD ERROR] User {message.from_user.id}: {e}")
 
 
-@router.message(F.chat.type != "private")
+@router.message(F.chat.type != "private", F.chat.id == config.SUPERGROUP_CHAT_ID)
 async def forward_from_topic(message: Message):
     """Forward messages from the forum topic back to the user (if still valid)."""
     # await message.answer("Сообщение получено в группе, обрабатываем...")
