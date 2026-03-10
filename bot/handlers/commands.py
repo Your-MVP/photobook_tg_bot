@@ -189,7 +189,7 @@ async def forward_text_to_topic(message: Message):
 @router.message(F.chat.type != "private")
 async def forward_from_topic(message: Message):
     """Forward messages from the forum topic back to the user (if still valid)."""
-    await message.answer("Сообщение получено в группе, обрабатываем...")
+    # await message.answer("Сообщение получено в группе, обрабатываем...")
     if message.from_user.id == message.bot.id:
         return  # ignore bot's own messages
 
