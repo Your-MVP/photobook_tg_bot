@@ -4,6 +4,8 @@
 Stores only Telegram file_id (no local files on host) and forwards to user's topic.
 """
 
+import logging
+
 from aiogram import Router, F
 from aiogram.types import Message
 
@@ -39,7 +41,8 @@ async def handle_photo(message: Message):
 
 @router.message()
 async def debug_all(message: Message):
-    print(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
+    # logging.info("Photobook Bot started successfully")
+    logging.debug(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
     if message.from_user.id == message.bot.id:
         return  # ignore bot's own messages
     await message.answer("Бот видит это сообщение!")
