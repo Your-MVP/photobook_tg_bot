@@ -20,6 +20,7 @@ router = Router()
 async def common_handle_photo(message: Message, file_id: str):
     """Common logic to handle a photo: save file_id and forward to user's topic."""
     user_id = message.from_user.id
+    await message.answer("Собираюсь добавить фото в альбом... 📸")
     await add_photo_to_user(user_id, file_id)
     await message.answer("Фото добавлено в ваш альбом! 📸")
 
