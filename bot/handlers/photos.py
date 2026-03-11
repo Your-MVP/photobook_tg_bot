@@ -20,9 +20,9 @@ router = Router()
 async def common_handle_photo(message: Message, file_id: str):
     """Common logic to handle a photo: save file_id and forward to user's topic."""
     user_id = message.from_user.id
-    await message.answer("Собираюсь добавить фото в альбом... 📸")
+    # await message.answer("Собираюсь добавить фото в альбом... 📸")
     await add_photo_to_user(user_id, file_id)
-    await message.answer("Фото добавлено в ваш альбом! 📸")
+    # await message.answer("Фото добавлено в ваш альбом! 📸")
 
     # Форвардинг в тему супергруппы
     topic_id = await get_user_topic_id_safe(message.from_user)
@@ -32,28 +32,26 @@ async def common_handle_photo(message: Message, file_id: str):
                 chat_id=config.SUPERGROUP_CHAT_ID,
                 message_thread_id=topic_id,
             )
-            await message.answer("Фото добавлено для модерации! 📸")
+            # await message.answer("Фото добавлено для модерации! 📸")
         except Exception as e:
             logging.error(f"[FORWARD ERROR] User {user_id}: {e}")
 
-    await message.answer("Фото обработано! 📸")
+    await message.answer("Готово! 📸")
 
 
 @router.message(F.photo)
 async def handle_photo(message: Message):
     """Обрабатывает фото: сохраняет file_id и форвардит в персональную тему."""
-    await message.answer("Вижу сжатое фото. Обрабатываю... 📸")
+    await message.answer("Вижу сжатое фото. Добавляю в альбом... 📸")
 
     await common_handle_photo(message, message.photo[-1].file_id)
+    await message.answer("💡Совет: отправляйте фото как документ (файл), без сжатия, чтобы не терять качество фотографии... 👍")
 
 
 @router.message(F.document, F.document.mime_type.startswith("image/"))
 async def handle_document_photo(message: Message):
     """Обработка документов-изображений"""
-    await message.answer(
-        f"Вижу документ-фото в оригинальном качестве: {message.document.file_name}, mime_type: {message.document.mime_type}.\n"
-        f"Обрабатываю... 📸"
-    )
+    await message.answer("Вижу документ-фото в оригинальном качестве. Добавляю в альбом... 📸")
 
     await common_handle_photo(message, message.document.file_id)
 
