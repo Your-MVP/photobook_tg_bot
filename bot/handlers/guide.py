@@ -28,7 +28,6 @@ async def say_greeting(message: Message):
     )
 
     admin_status = await get_admin_status(message.from_user)
-    await message.answer(f"Статус: {admin_status}")
 
     if admin_status in (1, 2):
         await message.answer(
