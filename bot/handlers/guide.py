@@ -23,11 +23,12 @@ async def say_greeting(message: Message):
     """Sends a greeting message with instructions to add the bot to a family chat."""
 
     await message.answer(
-        "👋 Привет! Я MagicMemory бот 📸 Я собираю фото в красивые фотоальбомы! Добавь меня в свой семейный чат или отправляй фотографии прямо в этом чате и я буду собирать фото для твоего нового фотоальбома.",
+        "👋 Привет! Я MagicMemory бот - я собираю фото в красивые фотоальбомы 📚! \nДобавь меня в свой семейный чат или отправляй фотографии мне напрямую и я буду собирать фото для твоей новой фотокниги.",
         reply_markup=add_to_family_chat_kb
     )
 
     admin_status = await get_admin_status(message.from_user)
+    await message.answer(f"Статус: {admin_status}")
 
     if admin_status in (1, 2):
         await message.answer(
