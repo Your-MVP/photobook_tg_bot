@@ -43,7 +43,7 @@ async def cmd_info(message: Message):
 
         if admin_status == 2:
             reply_text = reply_text + "\nВы также являетесь владельцем супергруппы."
-        await message.reply(f"{get_topic_name(message)}\n{reply_text}")
+        await message.reply(f"{get_topic_name(message.from_user)}\n{reply_text}")
 
         topic_id = await get_user_topic_id(message.from_user.id)
         if topic_id:
