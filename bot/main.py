@@ -20,14 +20,7 @@ async def main() -> None:
 
     Uses HTML parse mode and starts polling.
     """
-    # Startup validation: ensure required static video file exists
-    video_path = Path(config.VIDEO_ADD_TO_CHAT_PATH)
-    if not video_path.is_file():
-        logging.critical(f"Video file not found: {video_path}. "
-                         "Please place add_to_family_chat.mp4 in bot/assets/videos/ "
-                         "and rebuild the container.")
-        raise FileNotFoundError(f"Missing required video file: {video_path}")
-
+    # Startup validation: ensure environment variables are set and required assets are present
     if not config.BOT_TOKEN:
         logging.critical("BOT_TOKEN is not set in the environment. Please set it in the .env file.")
         raise ValueError("Missing BOT_TOKEN in configuration")
@@ -36,6 +29,14 @@ async def main() -> None:
         logging.critical("SUPERGROUP_CHAT_ID is not set in the environment. Please set it in the .env file.")
         raise ValueError("Missing SUPERGROUP_CHAT_ID in configuration")
 
+    video_path = Path(config.VIDEO_ADD_TO_CHAT_PATH)
+    if not video_path.is_file():
+        logging.critical(f"Video file not found: {video_path}. "
+                         "Please place add_to_family_chat.mp4 in bot/assets/videos/ "
+                         "and rebuild the container.")
+        raise FileNotFoundError(f"Missing required video file: {video_path}")
+
+    # Initialize bot and dispatcher
     bot = Bot(
         token=config.BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
@@ -47,9 +48,8 @@ async def main() -> None:
     # # Optional: drop pending updates on start
     # await bot.delete_webhook(drop_pending_updates=True)
 
-    logging.info("Photobook Bot: start polling...")
-    await dp.start_polling(bot)
-    logging.info("Photobook Bot: polling started successfully")
+    logging.info("Photobook Bot is ready. Going to start polling...")
+    await dp.start_polling(bot) # this will run until the bot is stopped
 
 
 if __name__ == "__main__":
