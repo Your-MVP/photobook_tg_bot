@@ -7,9 +7,10 @@ Stores only Telegram file_id (no local files on host) and forwards to user's top
 import logging
 
 from aiogram import Router, F
+from aiogram.enums import ChatType
 from aiogram.types import Message
 
-from bot.storage import add_photo_to_user
+from bot.storage import add_photo_to_user, get_user_topic_id
 from bot.config import config
 from bot.utils.get_admin_status import get_admin_status
 from bot.utils.user_topic import get_user_topic_id_safe
@@ -19,24 +20,40 @@ router = Router()
 
 async def common_handle_photo(message: Message, file_id: str):
     """Common logic to handle a photo: save file_id and forward to user's topic."""
-    user_id = message.from_user.id
-    # await message.answer("Собираюсь добавить фото в альбом... 📸")
-    await add_photo_to_user(user_id, file_id)
-    # await message.answer("Фото добавлено в ваш альбом! 📸")
+    user = None
+    topic_id = None
 
-    # Форвардинг в тему супергруппы
-    topic_id = await get_user_topic_id_safe(message.from_user)
+    if message.chat.type == ChatType.PRIVATE:
+        user = message.from_user
+        topic_id = await get_user_topic_id_safe(message.from_user)
+
+    if message.chat.type != ChatType.PRIVATE:
+        chat_id = message.chat.id
+        admins = await message.bot.get_chat_administrators(chat_id)
+
+        for admin in admins:
+
+            topic_id = await get_user_topic_id(admin.user.id)
+            if topic_id is not None:
+                user = admin.user
+                break
+
     if topic_id is not None:
         try:
+            # await message.answer("Собираюсь добавить фото в альбом... 📸")
+            await add_photo_to_user(user.id, file_id)
+            # await message.answer("Фото добавлено в ваш альбом! 📸")
+
             await message.forward(
                 chat_id=config.SUPERGROUP_CHAT_ID,
                 message_thread_id=topic_id,
             )
             # await message.answer("Фото добавлено для модерации! 📸")
         except Exception as e:
-            logging.error(f"[FORWARD ERROR] User {user_id}: {e}")
-
-    await message.answer("Готово! 📸")
+            logging.error(f"[FORWARD ERROR] User {user.id}: {e}")
+        await message.answer("Готово! 📸")
+    else:
+        await message.answer("Не могу найти вашу фотокнигу в своих записях. Просьба к ответственному отправить мне команду /start тут или мне напрямую и снова отправить фото. 🙏")
 
 
 @router.message(F.photo)
