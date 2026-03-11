@@ -44,7 +44,7 @@ async def handle_photo(message: Message):
     """Обрабатывает фото: сохраняет file_id и форвардит в персональную тему."""
     await message.answer("Вижу сжатое фото. Обрабатываю... 📸")
 
-    common_handle_photo(message, message.photo[-1].file_id)
+    await common_handle_photo(message, message.photo[-1].file_id)
 
 
 @router.message(F.document, F.document.mime_type.startswith("image/"))
@@ -55,7 +55,7 @@ async def handle_document_photo(message: Message):
         f"Обрабатываю... 📸"
     )
 
-    common_handle_photo(message, message.document.file_id)
+    await common_handle_photo(message, message.document.file_id)
 
 
 @router.message()
