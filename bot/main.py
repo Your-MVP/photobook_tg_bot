@@ -28,6 +28,14 @@ async def main() -> None:
                          "and rebuild the container.")
         raise FileNotFoundError(f"Missing required video file: {video_path}")
 
+    if not config.BOT_TOKEN:
+        logging.critical("BOT_TOKEN is not set in the environment. Please set it in the .env file.")
+        raise ValueError("Missing BOT_TOKEN in configuration")
+
+    if not config.SUPERGROUP_CHAT_ID:
+        logging.critical("SUPERGROUP_CHAT_ID is not set in the environment. Please set it in the .env file.")
+        raise ValueError("Missing SUPERGROUP_CHAT_ID in configuration")
+
     bot = Bot(
         token=config.BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
@@ -36,11 +44,12 @@ async def main() -> None:
     dp = Dispatcher()
     dp.include_router(router)
 
-    # Optional: drop pending updates on start
-    await bot.delete_webhook(drop_pending_updates=True)
+    # # Optional: drop pending updates on start
+    # await bot.delete_webhook(drop_pending_updates=True)
 
-    logging.info("Photobook Bot started successfully")
+    logging.info("Photobook Bot: start polling...")
     await dp.start_polling(bot)
+    logging.info("Photobook Bot: polling started successfully")
 
 
 if __name__ == "__main__":
