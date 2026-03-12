@@ -15,6 +15,7 @@ from aiogram.fsm.context import FSMContext
 from bot.handlers.guide import say_greeting
 from bot.utils.user_topic import create_user_topic, get_topic_name, get_user_topic_id_safe
 from bot.storage import (
+    backup_to_json,
     get_user_id_by_topic,
     get_user_photos,
     clear_user_photos,
@@ -32,6 +33,25 @@ async def cmd_start(message: Message, state: FSMContext):
     logging.info(f"Start command: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
     await get_user_topic_id_safe(message.from_user)
     await say_greeting(message)
+
+@router.message(Command("dump_redis"))
+async def cmd_dump_redis(message: Message, state: FSMContext):
+    """Handle /dump_redis: dump all Redis data to JSON."""
+    admin_status = await get_admin_status(message.from_user)
+
+    if admin_status in (1, 2):
+        json_text = await backup_to_json()
+        await message.reply(f"Данные Redis (JSON):\n{json_text}")
+
+
+@router.message(Command("load_redis"))
+async def cmd_load_redis(message: Message, state: FSMContext):
+    """Handle /load_redis: load Redis data from JSON."""
+    admin_status = await get_admin_status(message.from_user)
+
+    if admin_status in (1, 2):
+        await message.reply(f"Восстановление из JSON пока не реализовано в этом примере.")
+
 
 @router.message(Command("info"))
 async def cmd_info(message: Message):

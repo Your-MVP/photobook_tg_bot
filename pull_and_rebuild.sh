@@ -1,9 +1,13 @@
 #!/bin/bash
+set -euo pipefail  # останавливаем скрипт при любой ошибке
 
-# Pull latest changes
-git pull origin || { echo "Error: Git pull failed"; exit 1; }
+echo "🔄 Pulling latest changes..."
+git pull origin || { echo "❌ Git pull failed"; exit 1; }
 
-# Rebuild and restart Docker Compose
-docker compose down && docker compose up -d --build || { echo "Error: Docker operation failed"; exit 1; }
+echo "🔨 Rebuilding and restarting services..."
+docker compose up -d --build --force-recreate || { echo "❌ Docker operation failed"; exit 1; }
 
-echo "✅ Pull and rebuild completed successfully"
+# Optional: clean up dangling images to free up space
+docker image prune -f
+
+echo "✅ Deploy completed successfully!"

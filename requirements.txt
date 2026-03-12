@@ -5,3 +5,6 @@ asyncpg==0.29.0
 Pillow==10.2.0
 img2pdf==0.5.1
 pydantic-settings==2.2.1
+
+# for dumping and loading redis data
+git+https://github.com/p/redis-dump-load.git

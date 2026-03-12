@@ -5,11 +5,31 @@ All keys are prefixed with "user:{user_id}:..." for isolation.
 Photos are stored as Telegram file_id (no local files on host).
 """
 
+import redisdl
 from redis import asyncio as aioredis
+import redis
 import json
 from typing import List, Optional
 
 redis = aioredis.from_url("redis://redis:6379/0")
+
+# Sync client for backup/restore (not used in main async flow)
+redis_sync = redis.from_url("redis://redis:6379/0", decode_responses=True)
+
+async def backup_to_json() -> str:
+    """Dump ALL data to a JSON string"""
+    json_text = redisdl.dumps(
+        host="redis",
+        port=6379,
+        db=0,
+        pretty=True,
+        encoding="utf-8"
+    )
+    return json_text
+
+async def restore_from_json(json_text: str):
+    """Restore from JSON string"""
+    redisdl.loads(json_text, host="redis", port=6379, db=0)
 
 
 async def add_photo_to_user(user_id: int, file_id: str) -> None:
