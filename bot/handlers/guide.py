@@ -19,6 +19,7 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
     ]
 )
 
+
 async def say_greeting(message: Message):
     """Sends a greeting message with instructions to add the bot to a family chat."""
 
