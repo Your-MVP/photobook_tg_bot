@@ -7,7 +7,9 @@ from bot.config import config
 router = Router()
 
 HOW_TO_ADD_TO_FAMILY_CHAT_CALLBACK = "how_to_add_to_family_chat"
-
+ADDED_TO_FAMILY_CHAT_CALLBACK = "added_to_family_chat"
+ADDED_TO_FAMILY_CHAT2_CALLBACK = "added_to_family_chat2"
+ADDED_TO_FAMILY_CHAT3_CALLBACK = "added_to_family_chat3"
 
 add_to_family_chat_kb = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -15,6 +17,39 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(
                 text="Как добавить бота в семейный чат",
                 callback_data=HOW_TO_ADD_TO_FAMILY_CHAT_CALLBACK
+            )
+        ]
+    ]
+)
+
+added_to_family_chat_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Дальше",
+                callback_data=ADDED_TO_FAMILY_CHAT_CALLBACK
+            )
+        ]
+    ]
+)
+
+added_to_family_chat2_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Дальше",
+                callback_data=ADDED_TO_FAMILY_CHAT2_CALLBACK
+            )
+        ]
+    ]
+)
+
+added_to_family_chat3_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Понятно",
+                callback_data=ADDED_TO_FAMILY_CHAT3_CALLBACK
             )
         ]
     ]
@@ -48,5 +83,64 @@ async def process_add_to_family_chat(callback: CallbackQuery):
     )
     await callback.message.answer_video(
         video=video,
-        caption=caption
+        caption=caption,
+        reply_markup=added_to_family_chat_kb
+    )
+
+
+@router.callback_query(F.data == ADDED_TO_FAMILY_CHAT_CALLBACK)
+async def process_added_to_family_chat(callback: CallbackQuery):
+    """Handle callback from the 'Added bot to family chat' button.
+
+    Sends the instructional video with explanatory text in Russian.
+    """
+    await callback.answer()
+    video = FSInputFile(config.VIDEO_ADDED_TO_CHAT_PATH)
+    caption = ("Если вы все сделали по инструкции, то ваш чат уже добавлен в нашего бота и ИИ начнет с этого момента собирать все появляющиеся фото в добавленном вами чате.")
+    await callback.message.answer_video(
+        video=video,
+        caption=caption,
+        reply_markup=added_to_family_chat2_kb
+    )
+
+
+@router.callback_query(F.data == ADDED_TO_FAMILY_CHAT2_CALLBACK)
+async def process_added_to_family_chat2(callback: CallbackQuery):
+    """Handle callback from the 'Added bot to family chat' button.
+
+    Sends the instructional video with explanatory text in Russian.
+    """
+    await callback.answer()
+    photo = FSInputFile(config.IMAGE_ALBUM_PATH)
+    caption = (
+        f"Чтобы ускорить процесс создания и получения первого альбома вы можете прислать в ваш семейный чат дополнительные фото.\n\n"
+        f"Выберите и загрузите любое количество фотографий с телефона (не сортируя). "
+        f"Я их отсортирую сам, уберу дубли, а также фото с плохим качеством, придумаю темы альбомов и соберу для вас от 1 до нескольких альбомов, а потом помогу внести правки в него.\n\n"
+        f"Как только соберется достаточно фотографий для создания альбома (обычно от 50-100 штук нужно), мой ИИ сформирует альбом и я пришлю его вам для ознакомления и внесения правок."
+        f"Со мной можно общаться и управлять созданием альбомов очень просто - через голосовое/текстовое управление."
+    )
+    await callback.message.answer_photo(
+        photo=photo,
+        caption=caption,
+        reply_markup=added_to_family_chat3_kb
+    )
+
+
+@router.callback_query(F.data == ADDED_TO_FAMILY_CHAT3_CALLBACK)
+async def process_added_to_family_chat(callback: CallbackQuery):
+    """Handle callback from the 'Added bot to family chat' button.
+
+    Sends the instructional video with explanatory text in Russian.
+    """
+    await callback.answer()
+    video = FSInputFile(config.VIDEO_ALBUM_EXAMPLE_PATH)
+    caption = (
+        f"Я уже начал работу и в следующем сообщении вы уже получите ваш персонализированный фотоальбом в электронном виде и сможете внести в него дополнительно правки.\n"
+        f"Также вы можете писать в чат сюда любые ваши вопросы и хотя я пока не умею автоматически отвечать на сообщения (функция в процессе реализации) я учту все ваши комментарии для создания альбомов. "
+        f"Вы можете, например, заранее сами указать желаемую тему для создания нового альбома или придумать надпись на обложку или же указать на каком человеке мне сделать акцент при выборе фотографий. "
+        f"В любом случае, даже без этого, я придумаю и пришлю вам ваш альбом 🚀"
+    )
+    await callback.message.answer_video(
+        video=video,
+        caption=caption,
     )

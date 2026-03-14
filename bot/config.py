@@ -34,6 +34,9 @@ class Config(BaseSettings):
 
     # Media assets (static files baked into the Docker image)
     VIDEO_ADD_TO_CHAT_PATH: str = "/app/bot/assets/videos/add_to_family_chat.mp4"
+    VIDEO_ADDED_TO_CHAT_PATH: str = "/app/bot/assets/videos/ai_processes_photo.mp4"
+    VIDEO_ALBUM_EXAMPLE_PATH: str = "/app/bot/assets/videos/album_example.mp4"
+    IMAGE_ALBUM_PATH: str = "/app/bot/assets/images/album_day_to_day.jpeg"
 
 
 # Global instance (required for imports)

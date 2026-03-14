@@ -44,6 +44,8 @@ async def say_greeting(message: Message, dispatcher: Dispatcher):
                 f"Как администратор, вы можете дополнительно использовать следующие команды:\n"
                 f"• /info - получить информацию о вашем статусе и теме в супергруппе\n"
                 f"• /force_new_topic - принудительно создать новую тему для пользователя (если возникли проблемы с текущей темой)\n"
+                f"• /dump_redis - получить дамп всех данных Redis в формате JSON (для отладки)\n"
+                f"• /load_redis - восстановить данные Redis из JSON (пока не реализовано)"
         )
 
     email = await get_user_email(message.from_user.id)

@@ -36,6 +36,27 @@ async def main() -> None:
                          "and rebuild the container.")
         raise FileNotFoundError(f"Missing required video file: {video_path}")
 
+    video_path = Path(config.VIDEO_ADDED_TO_CHAT_PATH)
+    if not video_path.is_file():
+        logging.critical(f"Video file not found: {video_path}. "
+                         "Please place ai_processes_photo.mp4 in bot/assets/videos/ "
+                         "and rebuild the container.")
+        raise FileNotFoundError(f"Missing required video file: {video_path}")
+
+    video_path = Path(config.VIDEO_ALBUM_EXAMPLE_PATH)
+    if not video_path.is_file():
+        logging.critical(f"Video file not found: {video_path}. "
+                         "Please place album_example.mp4 in bot/assets/videos/ "
+                         "and rebuild the container.")
+        raise FileNotFoundError(f"Missing required video file: {video_path}")
+
+    image_path = Path(config.IMAGE_ALBUM_PATH)
+    if not image_path.is_file():
+        logging.critical(f"Image file not found: {image_path}. "
+                         "Please place album_day_to_day.jpeg in bot/assets/images/ "
+                         "and rebuild the container.")
+        raise FileNotFoundError(f"Missing required image file: {image_path}")
+
     # Initialize bot and dispatcher
     bot = Bot(
         token=config.BOT_TOKEN,
