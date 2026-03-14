@@ -13,9 +13,11 @@ from aiogram.types import ChatMemberUpdated, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
 from bot.handlers.ask_email import ask_email
+from bot.handlers.guide import suggest_family_chat
 from bot.utils.user_topic import create_user_topic, get_topic_name, get_user_topic_id_safe
 from bot.storage import (
     backup_to_json,
+    get_user_email,
     get_user_id_by_topic,
     get_user_photos,
     clear_user_photos,
@@ -37,13 +39,20 @@ async def say_greeting(message: Message, state: FSMContext):
     admin_status = await get_admin_status(message.from_user)
 
     if admin_status in (1, 2):
-        await message.answer(
-            f"Как администратор, вы можете дополнительно использовать следующие команды:\n"
-            f"• /info - получить информацию о вашем статусе и теме в супергруппе\n"
-            f"• /force_new_topic - принудительно создать новую тему для пользователя (если возникли проблемы с текущей темой)\n"
+        await message.bot.send_message(
+            chat_id=message.from_user.id,
+            text=
+                f"Как администратор, вы можете дополнительно использовать следующие команды:\n"
+                f"• /info - получить информацию о вашем статусе и теме в супергруппе\n"
+                f"• /force_new_topic - принудительно создать новую тему для пользователя (если возникли проблемы с текущей темой)\n"
         )
 
-    await ask_email(message, state)  # ask for email after greeting, regardless of admin status
+    email = await get_user_email(message.from_user.id)
+    await message.reply(f"Ваш адрес электронной почты: {email}")
+    if email is None:
+        await ask_email(message, state)
+    else:
+        await suggest_family_chat(message)
 
 
 @router.message(Command("start"))
