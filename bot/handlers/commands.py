@@ -49,7 +49,6 @@ async def say_greeting(message: Message, dispatcher: Dispatcher):
         )
 
     email = await get_user_email(message.from_user.id)
-    await message.reply(f"Ваш полученный адрес электронной почты: {email}")
     if email is None:
         await ask_email(message, dispatcher)
     else:
