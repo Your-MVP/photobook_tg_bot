@@ -88,12 +88,6 @@ async def cmd_info(message: Message):
 
     bot = message.bot
 
-    email = await get_user_email(user.id)
-    email_info = "Адрес электронной почты не указан. Пожалуйста, используйте команду /start для его ввода."
-    if email:
-        email_info = f"Ваш адрес электронной почты: {email}"
-    await bot.send_message(chat_id=user.id, text=email_info)
-
     if admin_status in (1, 2):
         reply_text = "Вы являетесь администратором бота и его супергруппы."
 
@@ -109,6 +103,12 @@ async def cmd_info(message: Message):
     else:
         await bot.send_message(chat_id=user.id, text="Вы не являетесь администратором бота.")
         return
+
+    email = await get_user_email(user.id)
+    email_info = "Адрес электронной почты не указан. Пожалуйста, используйте команду /start для его ввода."
+    if email:
+        email_info = f"Ваш адрес электронной почты: {email}"
+    await bot.send_message(chat_id=user.id, text=email_info)
 
 
 @router.message(Command("force_new_topic"))
