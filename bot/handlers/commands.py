@@ -83,22 +83,25 @@ async def cmd_load_redis(message: Message):
 @router.message(Command("info"))
 async def cmd_info(message: Message):
     """Display helpful information."""
-    admin_status = await get_admin_status(message.from_user)
+    user = message.from_user
+    admin_status = await get_admin_status(user)
+
+    bot = message.bot
 
     if admin_status in (1, 2):
-        reply_text = "Вы являетесь администратором супергруппы."
+        reply_text = "Вы являетесь администратором бота и его супергруппы."
 
         if admin_status == 2:
             reply_text = reply_text + "\nВы также являетесь владельцем супергруппы."
-        await message.reply(f"{get_topic_name(message.from_user)}\n{reply_text}")
+        await bot.send_message(chat_id=user.id, text=f"{get_topic_name(user)}\n{reply_text}")
 
-        topic_id = await get_user_topic_id(message.from_user.id)
+        topic_id = await get_user_topic_id(user.id)
         if topic_id:
-            await message.reply(f"У вас уже есть тема в супергруппе с ID: {topic_id}")
+            await bot.send_message(chat_id=user.id, text=f"У вас уже есть тема в супергруппе с ID: {topic_id}")
         else:
-            await message.reply("У вас пока нет темы в супергруппе.")
+            await bot.send_message(chat_id=user.id, text="У вас пока нет темы в супергруппе.")
     else:
-        await message.reply("Вы не являетесь администратором.")
+        await bot.send_message(chat_id=user.id, text="Вы не являетесь администратором бота.")
         return
 
 
