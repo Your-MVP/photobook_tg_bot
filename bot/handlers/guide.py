@@ -1,12 +1,15 @@
 from aiogram import Router, F
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
+from bot.handlers.ask_email import ask_email
 from bot.utils.get_admin_status import get_admin_status
 
 router = Router()
 
 HOW_TO_ADD_TO_FAMILY_CHAT_CALLBACK = "how_to_add_to_family_chat"
+
 
 add_to_family_chat_kb = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -20,22 +23,13 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
 )
 
 
-async def say_greeting(message: Message):
+async def suggest_family_chat(message: Message):
     """Sends a greeting message with instructions to add the bot to a family chat."""
 
     await message.answer(
-        "👋 Привет! Я MagicMemory бот - я собираю фото в красивые фотоальбомы 📚! \nДобавь меня в свой семейный чат или отправляй фотографии мне напрямую и я буду собирать фото для твоей новой фотокниги.",
+        "Теперь ты можешь добавь меня в свой семейный чат или отправляй фотографии мне напрямую и я буду собирать фото для твоей новой фотокниги.",
         reply_markup=add_to_family_chat_kb
     )
-
-    admin_status = await get_admin_status(message.from_user)
-
-    if admin_status in (1, 2):
-        await message.answer(
-            f"Как администратор, вы можете дополнительно использовать следующие команды:\n"
-            f"• /info - получить информацию о вашем статусе и теме в супергруппе\n"
-            f"• /force_new_topic - принудительно создать новую тему для пользователя (если возникли проблемы с текущей темой)\n"
-        )
 
 
 @router.callback_query(F.data == HOW_TO_ADD_TO_FAMILY_CHAT_CALLBACK)

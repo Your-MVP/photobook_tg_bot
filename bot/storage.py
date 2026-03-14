@@ -1,20 +1,21 @@
 # bot/storage.py
-"""Redis storage layer for user data (photos and forum topics).
+"""Redis storage layer for user data (photos, forum topics and email).
 
 All keys are prefixed with "user:{user_id}:..." for isolation.
 Photos are stored as Telegram file_id (no local files on host).
+Email is stored as simple string under user:{user_id}:email.
 """
 
 import redisdl
 from redis import asyncio as aioredis
-import redis
+# import redis as sync_redis
 import json
 from typing import List, Optional
 
 redis = aioredis.from_url("redis://redis:6379/0")
 
-# Sync client for backup/restore (not used in main async flow)
-redis_sync = redis.from_url("redis://redis:6379/0", decode_responses=True)
+# # Sync client for backup/restore (not used in main async flow)
+# redis_sync = sync_redis.from_url("redis://redis:6379/0", decode_responses=True)
 
 async def backup_to_json() -> str:
     """Dump ALL data to a JSON string"""
@@ -75,3 +76,26 @@ async def get_user_id_by_topic(topic_id: int) -> Optional[int]:
     topic_key = f"topic:{topic_id}:user_id"
     user_id_bytes = await redis.get(topic_key)
     return int(user_id_bytes) if user_id_bytes else None
+
+
+# === Association: User ↔ Email ===
+
+async def save_user_email(user_id: int, email: str) -> None:
+    """
+    Saves the email address for the given user ID in Redis.
+    Key format: user:{user_id}:email
+    No expiration — email stays forever like photo album.
+    """
+    key = f"user:{user_id}:email"
+    await redis.set(key, email)
+
+
+async def get_user_email(user_id: int) -> Optional[str]:
+    """
+    Retrieves the email address for the given user ID from Redis.
+    Returns None if the email was not found.
+    Key format: user:{user_id}:email
+    """
+    key = f"user:{user_id}:email"
+    email_bytes = await redis.get(key)
+    return email_bytes.decode("utf-8") if email_bytes else None

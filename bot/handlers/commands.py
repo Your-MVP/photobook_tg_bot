@@ -12,7 +12,7 @@ from aiogram.filters import JOIN_TRANSITION, ChatMemberUpdatedFilter, Command
 from aiogram.types import ChatMemberUpdated, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
-from bot.handlers.guide import say_greeting
+from bot.handlers.ask_email import ask_email
 from bot.utils.user_topic import create_user_topic, get_topic_name, get_user_topic_id_safe
 from bot.storage import (
     backup_to_json,
@@ -27,12 +27,31 @@ from bot.config import config
 
 router = Router()
 
+async def say_greeting(message: Message, state: FSMContext):
+    """Sends a greeting message with instructions to add the bot to a family chat."""
+
+    await message.answer(
+        "👋 Привет! Я MagicMemory бот - я собираю фото в красивые фотоальбомы 📚!",
+    )
+
+    admin_status = await get_admin_status(message.from_user)
+
+    if admin_status in (1, 2):
+        await message.answer(
+            f"Как администратор, вы можете дополнительно использовать следующие команды:\n"
+            f"• /info - получить информацию о вашем статусе и теме в супергруппе\n"
+            f"• /force_new_topic - принудительно создать новую тему для пользователя (если возникли проблемы с текущей темой)\n"
+        )
+
+    await ask_email(message, state)  # ask for email after greeting, regardless of admin status
+
+
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     """Handle /start: create personal forum topic in supergroup if not exists."""
     logging.info(f"Start command: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
     await get_user_topic_id_safe(message.from_user)
-    await say_greeting(message)
+    await say_greeting(message, state)
 
 @router.message(Command("dump_redis"))
 async def cmd_dump_redis(message: Message, state: FSMContext):
