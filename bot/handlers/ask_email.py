@@ -29,7 +29,7 @@ async def ask_email(message: Message, dispatcher: Dispatcher):
         chat_id=message.from_user.id,
         text="Пробуем начать запрос почты"
     )
-    other_state: FSMContext = await dispatcher.fsm.get_context(
+    other_state = dispatcher.fsm.get_context(
         bot=message.bot,
         chat_id=message.from_user.id,
         user_id=message.from_user.id
