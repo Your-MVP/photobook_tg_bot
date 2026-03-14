@@ -25,12 +25,24 @@ class EmailForm(StatesGroup):
 router = Router()
 
 async def ask_email(message: Message, dispatcher: Dispatcher):
-    other_state = await dispatcher.fsm.get_context(
+    await message.bot.send_message(
+        chat_id=message.from_user.id,
+        text="Пробуем начать запрос почты"
+    )
+    other_state: FSMContext = await dispatcher.fsm.get_context(
         bot=message.bot,
         chat_id=message.from_user.id,
         user_id=message.from_user.id
     )
+    await message.bot.send_message(
+        chat_id=message.from_user.id,
+        text=f"other state: {other_state}"
+    )
     await other_state.set_state(EmailForm.waiting_for_email)
+    await message.bot.send_message(
+        chat_id=message.from_user.id,
+        text="state is set"
+    )
     # Ask the user to provide their email address
     await message.bot.send_message(
         chat_id=message.from_user.id,

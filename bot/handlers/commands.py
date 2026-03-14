@@ -47,7 +47,7 @@ async def say_greeting(message: Message, dispatcher: Dispatcher):
         )
 
     email = await get_user_email(message.from_user.id)
-    await message.reply(f"Ваш адрес электронной почты: {email}")
+    await message.reply(f"Ваш полученный адрес электронной почты: {email}")
     if email is None:
         await ask_email(message, dispatcher)
     else:
@@ -106,7 +106,7 @@ async def cmd_info(message: Message):
 
     email = await get_user_email(user.id)
     email_info = "Адрес электронной почты не указан. Пожалуйста, используйте команду /start для его ввода."
-    if email:
+    if email is not None:
         email_info = f"Ваш адрес электронной почты: {email}"
     await bot.send_message(chat_id=user.id, text=email_info)
 
