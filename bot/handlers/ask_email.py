@@ -1,8 +1,7 @@
 # bot/handlers/ask_email.py
 # This file contains the Router with handlers for requesting and validating user's email address using FSM.
 
-from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram import Dispatcher, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
@@ -25,11 +24,20 @@ class EmailForm(StatesGroup):
 # Create router for email-related handlers
 router = Router()
 
-async def ask_email(message: Message, state: FSMContext):
+async def ask_email(message: Message, dispatcher: Dispatcher):
+    other_state = await dispatcher.fsm.get_context(
+        bot=message.bot,
+        chat_id=message.from_user.id,
+        user_id=message.from_user.id
+    )
+    await other_state.set_state(EmailForm.waiting_for_email)
     # Ask the user to provide their email address
-    await message.answer("Пожалуйста, введите ваш адрес электронной почты.")
+    await message.bot.send_message(
+        chat_id=message.from_user.id,
+        text="Пожалуйста, введите ваш адрес электронной почты."
+    )
     # Set the state to wait for email input
-    await state.set_state(EmailForm.waiting_for_email)
+    await other_state.set_state(EmailForm.waiting_for_email)
 
 @router.message(EmailForm.waiting_for_email)
 async def process_email(message: Message, state: FSMContext):

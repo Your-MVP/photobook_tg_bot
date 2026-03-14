@@ -7,10 +7,9 @@ Includes /start with automatic forum topic creation and forwarding of user messa
 
 import logging
 
-from aiogram import Router, F
+from aiogram import Dispatcher, Router, F
 from aiogram.filters import JOIN_TRANSITION, ChatMemberUpdatedFilter, Command
 from aiogram.types import ChatMemberUpdated, Message, BufferedInputFile
-from aiogram.fsm.context import FSMContext
 
 from bot.handlers.ask_email import ask_email
 from bot.handlers.guide import suggest_family_chat
@@ -29,7 +28,7 @@ from bot.config import config
 
 router = Router()
 
-async def say_greeting(message: Message, state: FSMContext):
+async def say_greeting(message: Message, dispatcher: Dispatcher):
     """Sends a greeting message with instructions to add the bot to a family chat."""
 
     await message.answer(
@@ -50,20 +49,20 @@ async def say_greeting(message: Message, state: FSMContext):
     email = await get_user_email(message.from_user.id)
     await message.reply(f"Ваш адрес электронной почты: {email}")
     if email is None:
-        await ask_email(message, state)
+        await ask_email(message, dispatcher)
     else:
         await suggest_family_chat(message)
 
 
 @router.message(Command("start"))
-async def cmd_start(message: Message, state: FSMContext):
+async def cmd_start(message: Message, dispatcher: Dispatcher):
     """Handle /start: create personal forum topic in supergroup if not exists."""
     logging.info(f"Start command: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
     await get_user_topic_id_safe(message.from_user)
-    await say_greeting(message, state)
+    await say_greeting(message, dispatcher)
 
 @router.message(Command("dump_redis"))
-async def cmd_dump_redis(message: Message, state: FSMContext):
+async def cmd_dump_redis(message: Message):
     """Handle /dump_redis: dump all Redis data to JSON."""
     admin_status = await get_admin_status(message.from_user)
 
@@ -73,7 +72,7 @@ async def cmd_dump_redis(message: Message, state: FSMContext):
 
 
 @router.message(Command("load_redis"))
-async def cmd_load_redis(message: Message, state: FSMContext):
+async def cmd_load_redis(message: Message):
     """Handle /load_redis: load Redis data from JSON."""
     admin_status = await get_admin_status(message.from_user)
 
