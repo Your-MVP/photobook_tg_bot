@@ -3,8 +3,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
-from bot.handlers.ask_email import ask_email
-from bot.utils.get_admin_status import get_admin_status
 
 router = Router()
 
