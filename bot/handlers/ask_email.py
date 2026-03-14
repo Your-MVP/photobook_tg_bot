@@ -36,11 +36,6 @@ async def ask_email(message: Message, dispatcher: Dispatcher):
     )
     await message.bot.send_message(
         chat_id=message.from_user.id,
-        text=f"other state: {other_state}"
-    )
-    await other_state.set_state(EmailForm.waiting_for_email)
-    await message.bot.send_message(
-        chat_id=message.from_user.id,
         text="state is set"
     )
     # Ask the user to provide their email address
