@@ -33,7 +33,11 @@ async def ask_email(message: Message, dispatcher: Dispatcher):
     # Ask the user to provide their email address
     await message.bot.send_message(
         chat_id=message.from_user.id,
-        text="Пожалуйста, введите ваш адрес электронной почты."
+        text=(
+            f"Чтобы сохранять твои фотокниги, нужно быстро зарегистрироваться 💌\n"
+            f"1️⃣ Перейди на https://kindphoto.club/ и нажми «Создать фотокнигу»\n"
+            f"2️⃣ Пришли сюда указанную при регистрации почту"
+        )
     )
     # Set the state to wait for email input
     await other_state.set_state(EmailForm.waiting_for_email)
