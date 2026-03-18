@@ -68,6 +68,7 @@ async def handle_photo(message: Message):
 @router.message(F.document, F.document.mime_type.startswith("image/"))
 async def handle_document_photo(message: Message):
     """Обработка документов-изображений"""
+    logging.info(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
     await message.answer("Вижу документ-фото в оригинальном качестве. Добавляю в альбом... 📸")
 
     await common_handle_photo(message, message.document.file_id)
