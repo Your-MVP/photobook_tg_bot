@@ -130,7 +130,7 @@ async def cmd_force_new_topic(message: Message):
         except Exception as e:
             logging.warning(f"Не удалось удалить тему для {message.from_user.id}: {e}")
         try:
-            topic_id = await create_user_topic(message, "<b>Пересоздание темы для пользователя</b>\n")
+            topic_id = await create_user_topic(message.from_user, "<b>Пересоздание темы для пользователя</b>\n")
         except Exception as e:
             logging.warning(f"Не удалось создать тему для {message.from_user.id}: {e}")
     else:
