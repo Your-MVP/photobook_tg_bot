@@ -42,14 +42,11 @@ async def create_user_topic(user: User, info_text: str) -> int:
 async def get_user_topic_id_safe(user: User) -> int:
     """Get user's topic_id if exists, otherwise create one."""
     topic_id = await get_user_topic_id(user.id)
-    logging.info(f"get_user_topic_id_safe: User {user.id} has topic_id {topic_id}")
     if topic_id is None:
-        logging.info(f"get_user_topic_id_safe: No topic_id for user {user.id}, creating new topic")
         try:
             topic_id = await create_user_topic(user, "<b>Новый пользователь запустил бота</b>\n")
-            logging.info(f"get_user_topic_id_safe: Created new topic {topic_id} for user {user.id}")
 
         except Exception as e:
-            logging.error(f"Не удалось создать тему для {user.id}: {e}")
+            logging.error(f"[ERROR] Не удалось создать тему для {user.id}: {e}")
 
     return topic_id

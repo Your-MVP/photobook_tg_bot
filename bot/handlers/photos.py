@@ -72,15 +72,3 @@ async def handle_document_photo(message: Message):
     await message.answer("Вижу документ-фото в оригинальном качестве. Добавляю в альбом... 📸")
 
     await common_handle_photo(message, message.document.file_id)
-
-
-@router.message()
-async def debug_all(message: Message):
-    # logging.info("Photobook Bot started successfully")
-    logging.info(f"DEBUG: Получено! Тип: {message.content_type} | Фото: {bool(message.photo)} | От: {message.from_user.id}")
-    if message.from_user.id == message.bot.id:
-        return  # ignore bot's own messages
-
-    admin_status = await get_admin_status(message.from_user)
-    if admin_status in (1, 2):
-        await message.answer("Бот видит это сообщение!")
