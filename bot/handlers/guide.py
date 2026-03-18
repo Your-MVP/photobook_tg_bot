@@ -19,10 +19,10 @@ add_to_family_chat_kb = InlineKeyboardMarkup(
                 text="👨‍👩‍👧 Добавить бота в семейный чат",
                 callback_data=HOW_TO_ADD_TO_FAMILY_CHAT_CALLBACK
             ),
-            # InlineKeyboardButton(
-            #     text="📷 Загрузить фото сюда",
-            #     callback_data=PUT_PHOTO_HERE_CALLBACK
-            # )
+            InlineKeyboardButton(
+                text="📷 Загрузить фото сюда",
+                callback_data=PUT_PHOTO_HERE_CALLBACK
+            )
         ]
     ]
 )
@@ -76,10 +76,8 @@ async def suggest_family_chat(message: Message):
 @router.callback_query(F.data == HOW_TO_ADD_TO_FAMILY_CHAT_CALLBACK)
 async def process_add_to_family_chat(callback: CallbackQuery):
     """Handle callback from the 'Add bot to family chat' button.
-
     Sends the instructional video with explanatory text in Russian.
     """
-    await callback.answer()
     video = FSInputFile(config.VIDEO_ADD_TO_CHAT_PATH)
     caption = (
         "Чтобы добавить меня в семейный чат:\n"
@@ -96,13 +94,18 @@ async def process_add_to_family_chat(callback: CallbackQuery):
     )
 
 
+@router.callback_query(F.data == PUT_PHOTO_HERE_CALLBACK)
+async def process_put_photo_here(callback: CallbackQuery):
+    """Handle callback from the 'Put photo here' button.
+    Sends a message in Russian instructing the user to upload photos directly to the chat.
+    """
+    await callback.message.answer("Хорошо, тогда я жду ваших фотографии в этом чате")
+
+
 @router.callback_query(F.data == ADDED_TO_FAMILY_CHAT_CALLBACK)
 async def process_added_to_family_chat(callback: CallbackQuery):
     """Handle callback from the 'Added bot to family chat' button.
-
-    Sends the instructional video with explanatory text in Russian.
-    """
-    await callback.answer()
+    Sends the instructional video with explanatory text in Russian."""
     video = FSInputFile(config.VIDEO_ADDED_TO_CHAT_PATH)
     caption = (
         f"Если ты всё сделал(а) по инструкции, чат уже подключён ✅\n"
@@ -120,10 +123,8 @@ async def process_added_to_family_chat(callback: CallbackQuery):
 @router.callback_query(F.data == ADDED_TO_FAMILY_CHAT2_CALLBACK)
 async def process_added_to_family_chat2(callback: CallbackQuery):
     """Handle callback from the 'Added bot to family chat' button.
-
-    Sends the instructional video with explanatory text in Russian.
+    Sends a message in Russian instructing the user to upload photos directly to the chat.
     """
-    await callback.answer()
     photo = FSInputFile(config.IMAGE_ALBUM_PATH)
     caption = (
         f"Чтобы первый альбом появился быстрее, присылай фото не только в семейный чат, но и прямо сюда 📸\n"
@@ -140,10 +141,8 @@ async def process_added_to_family_chat2(callback: CallbackQuery):
 @router.callback_query(F.data == ADDED_TO_FAMILY_CHAT3_CALLBACK)
 async def process_added_to_family_chat(callback: CallbackQuery):
     """Handle callback from the 'Added bot to family chat' button.
-
-    Sends the instructional video with explanatory text in Russian.
+    Sends a message in Russian explaining the next steps after uploading photos.
     """
-    await callback.answer()
     video = FSInputFile(config.VIDEO_ALBUM_EXAMPLE_PATH)
     caption = (
         f"Я уже начал работу над твоей фотокнигой 🚀\n"
